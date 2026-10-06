@@ -1,0 +1,1097 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>LOVE MATCH CALCULATOR</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: #03030a;
+      color: white;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    /* ===== BACKGROUND ===== */
+
+    .app-bg {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 0, 153, .16), transparent 32%),
+        radial-gradient(circle at 10% 80%, rgba(0, 255, 255, .10), transparent 30%),
+        radial-gradient(circle at 90% 65%, rgba(180, 0, 255, .10), transparent 30%),
+        #03030a;
+      overflow: hidden;
+    }
+
+    .app-bg::before,
+    .app-bg::after {
+      content: "";
+      position: fixed;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      opacity: .18;
+    }
+
+    .app-bg::before {
+      background: #ff008c;
+      top: -100px;
+      left: -100px;
+    }
+
+    .app-bg::after {
+      background: #00ffff;
+      bottom: -100px;
+      right: -100px;
+    }
+
+    /* ===== CONTAINER ===== */
+
+    .phone-container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 500px;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: auto;
+      padding: 20px 16px 28px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== TITLE ===== */
+
+    .title {
+      text-align: center;
+      font-size: clamp(27px, 8vw, 42px);
+      line-height: 1.05;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #fff;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 12px #ff00a8,
+        0 0 25px #ff00a8,
+        0 0 50px #ff00a8;
+      animation: titlePulse 2s ease-in-out infinite;
+    }
+
+    .subtitle {
+      margin-top: 9px;
+      text-align: center;
+      color: #9eefff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% {
+        text-shadow:
+          0 0 5px #fff,
+          0 0 12px #ff00a8,
+          0 0 25px #ff00a8;
+      }
+
+      50% {
+        text-shadow:
+          0 0 7px #fff,
+          0 0 20px #ff00a8,
+          0 0 45px #ff00a8,
+          0 0 70px #00ffff;
+      }
+    }
+
+    /* ===== CARD ===== */
+
+    .glass-card {
+      margin-top: 22px;
+      padding: 20px;
+      border-radius: 24px;
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, .075),
+        rgba(255, 255, 255, .025)
+      );
+      border: 1px solid rgba(255, 0, 170, .30);
+      box-shadow:
+        0 0 20px rgba(255, 0, 170, .10),
+        inset 0 0 30px rgba(255, 255, 255, .02);
+      backdrop-filter: blur(12px);
+    }
+
+    /* ===== INPUT ===== */
+
+    .input-label {
+      display: block;
+      margin-bottom: 7px;
+      color: #e7e7ef;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .neon-input {
+      width: 100%;
+      height: 58px;
+      padding: 0 17px;
+      border-radius: 14px;
+      outline: none;
+      color: #fff;
+      background: rgba(0, 0, 0, .45);
+      border: 1px solid rgba(0, 255, 255, .35);
+      font-size: 16px;
+      font-weight: 700;
+      transition: .25s ease;
+    }
+
+    .neon-input::placeholder {
+      color: #777887;
+    }
+
+    .neon-input:focus {
+      border-color: #00ffff;
+      box-shadow:
+        0 0 0 2px rgba(0, 255, 255, .12),
+        0 0 20px rgba(0, 255, 255, .25);
+      transform: translateY(-1px);
+    }
+
+    /* ===== BUTTONS ===== */
+
+    .main-button {
+      position: relative;
+      width: 100%;
+      height: 62px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      color: white;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      background: linear-gradient(100deg, #ff008c, #d600ff, #00e5ff);
+      box-shadow:
+        0 0 15px rgba(255, 0, 153, .35),
+        0 0 35px rgba(0, 229, 255, .15);
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+
+    .main-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 70%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.45),
+        transparent
+      );
+      transform: skewX(-20deg);
+      animation: shine 2.5s infinite;
+    }
+
+    @keyframes shine {
+      0% {
+        left: -100%;
+      }
+
+      50%, 100% {
+        left: 140%;
+      }
+    }
+
+    .main-button:hover {
+      box-shadow:
+        0 0 20px rgba(255, 0, 153, .65),
+        0 0 40px rgba(0, 229, 255, .30);
+    }
+
+    .main-button:active {
+      transform: scale(.97);
+    }
+
+    .main-button:disabled {
+      cursor: not-allowed;
+      opacity: .65;
+      transform: none;
+    }
+
+    .reset-button {
+      width: 100%;
+      height: 48px;
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.13);
+      color: #bfc0ca;
+      background: rgba(255,255,255,.035);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .reset-button:hover {
+      color: #fff;
+      border-color: rgba(0,255,255,.35);
+      background: rgba(0,255,255,.06);
+    }
+
+    /* ===== WARNING ===== */
+
+    .warning {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-align: center;
+      color: #ff8d8d;
+      background: rgba(255, 0, 0, .08);
+      border: 1px solid rgba(255, 70, 70, .25);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .warning.show {
+      display: block;
+      animation: shake .35s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* ===== RESULT CARD ===== */
+
+    .result-card {
+      position: relative;
+      margin-top: 18px;
+      padding: 22px 18px;
+      border-radius: 24px;
+      text-align: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 0, 153, .3);
+      background: rgba(0,0,0,.38);
+      box-shadow:
+        0 0 25px rgba(255,0,153,.12),
+        inset 0 0 35px rgba(255,0,153,.035);
+      transition: .4s ease;
+    }
+
+    .result-card.processing {
+      animation: heartBeat .75s infinite;
+    }
+
+    @keyframes heartBeat {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      15% {
+        transform: scale(1.025);
+      }
+
+      30% {
+        transform: scale(1);
+      }
+
+      45% {
+        transform: scale(1.04);
+      }
+
+      60% {
+        transform: scale(1);
+      }
+    }
+
+    .result-card.hidden {
+      display: none;
+    }
+
+    .result-names {
+      color: #aaaab8;
+      font-size: 12px;
+      font-weight: 700;
+      min-height: 18px;
+    }
+
+    .percentage {
+      position: relative;
+      margin: 6px 0 2px;
+      font-size: clamp(65px, 19vw, 95px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -4px;
+      color: #fff;
+      text-shadow:
+        0 0 8px #fff,
+        0 0 20px #ff00b7,
+        0 0 40px #ff00b7;
+    }
+
+    .percent-sign {
+      font-size: .42em;
+      letter-spacing: 0;
+    }
+
+    .processing-text {
+      min-height: 25px;
+      color: #00ffff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ===== HEART ===== */
+
+    .heart-wrap {
+      margin: 13px auto 9px;
+      width: 100%;
+      max-width: 350px;
+    }
+
+    .heart-bar {
+      position: relative;
+      height: 23px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,.5);
+    }
+
+    .heart-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ff174f, #ff008c, #ff4fd8, #00ffff);
+      box-shadow:
+        0 0 10px #ff008c,
+        0 0 20px rgba(255,0,140,.5);
+      transition: width 1.2s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .heart-icon {
+      margin-top: 8px;
+      font-size: 22px;
+      animation: floatingHeart 1.4s ease-in-out infinite;
+    }
+
+    @keyframes floatingHeart {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-4px) scale(1.08);
+      }
+    }
+
+    /* ===== CATEGORY ===== */
+
+    .category {
+      margin-top: 9px;
+      font-size: clamp(22px, 6vw, 31px);
+      line-height: 1.15;
+      font-weight: 900;
+      text-shadow: 0 0 15px currentColor;
+    }
+
+    .message {
+      margin-top: 7px;
+      color: #aaaab7;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .low .category {
+      color: #ff5d70;
+      text-shadow: 0 0 16px rgba(255,60,80,.55);
+    }
+
+    .low .heart-fill {
+      background: linear-gradient(90deg, #666, #b83346);
+      box-shadow: 0 0 15px rgba(255,50,70,.35);
+    }
+
+    .medium .category {
+      color: #ffd166;
+      text-shadow: 0 0 16px rgba(255,180,0,.6);
+    }
+
+    .medium .heart-fill {
+      background: linear-gradient(90deg, #ff8a00, #ffd000, #ff5cac);
+      box-shadow: 0 0 15px rgba(255,180,0,.5);
+    }
+
+    .high .category {
+      color: #ff5bd8;
+      text-shadow:
+        0 0 10px #ff00a8,
+        0 0 30px #ff00a8;
+      animation: highGlow 1s ease-in-out infinite alternate;
+    }
+
+    .high .heart-fill {
+      background: linear-gradient(90deg, #ff008c, #ff42c8, #ffd700, #fff3a0);
+      box-shadow:
+        0 0 15px #ff00a8,
+        0 0 30px rgba(255,215,0,.35);
+    }
+
+    @keyframes highGlow {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.04);
+      }
+    }
+
+    /* ===== STREAM BADGE ===== */
+
+    .live-badge {
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: auto;
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: rgba(255,0,80,.08);
+      border: 1px solid rgba(255,0,100,.2);
+      color: #ff7da9;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ff174f;
+      box-shadow: 0 0 10px #ff174f;
+      animation: liveBlink 1s infinite;
+    }
+
+    @keyframes liveBlink {
+      50% {
+        opacity: .25;
+      }
+    }
+
+    /* ===== PARTICLES ===== */
+
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+      font-size: 18px;
+      opacity: .5;
+      animation: floatParticle linear infinite;
+    }
+
+    @keyframes floatParticle {
+      from {
+        transform: translateY(110vh) rotate(0deg);
+      }
+
+      to {
+        transform: translateY(-15vh) rotate(360deg);
+      }
+    }
+
+    /* Small screens */
+    @media (max-height: 700px) {
+      .phone-container {
+        padding-top: 12px;
+      }
+
+      .glass-card {
+        margin-top: 14px;
+        padding: 15px;
+      }
+
+      .neon-input {
+        height: 50px;
+      }
+
+      .main-button {
+        height: 55px;
+        margin-top: 14px;
+      }
+
+      .result-card {
+        margin-top: 12px;
+        padding: 15px;
+      }
+
+      .percentage {
+        font-size: 65px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-bg">
+
+    <!-- Decorative particles -->
+    <div class="particle" style="left:8%; animation-duration:13s; animation-delay:-4s;">♡</div>
+    <div class="particle" style="left:20%; animation-duration:17s; animation-delay:-10s;">♥</div>
+    <div class="particle" style="left:77%; animation-duration:15s; animation-delay:-7s;">♡</div>
+    <div class="particle" style="left:91%; animation-duration:19s; animation-delay:-13s;">♥</div>
+
+    <main class="phone-container">
+
+      <!-- HEADER -->
+      <header>
+        <h1 class="title">
+          LOVE MATCH<br>
+          CALCULATOR
+        </h1>
+
+        <p class="subtitle">
+          💘 Seberapa Cocok Kalian? 💘
+        </p>
+      </header>
+
+      <!-- FORM -->
+      <section class="glass-card">
+
+        <div>
+          <label class="input-label" for="name1">
+            💗 Nama Kamu
+          </label>
+
+          <input
+            id="name1"
+            class="neon-input"
+            type="text"
+            maxlength="30"
+            autocomplete="off"
+            placeholder="Masukkan nama..."
+          >
+        </div>
+
+        <div class="mt-4">
+          <label class="input-label" for="name2">
+            💕 Nama Pasangan
+          </label>
+
+          <input
+            id="name2"
+            class="neon-input"
+            type="text"
+            maxlength="30"
+            autocomplete="off"
+            placeholder="Masukkan nama pasangan..."
+          >
+        </div>
+
+        <div
+          id="warning"
+          class="warning"
+          role="alert"
+        >
+          ⚠️ Isi kedua nama dulu, ya!
+        </div>
+
+        <button
+          id="checkButton"
+          class="main-button"
+          type="button"
+        >
+          💘 CEK KECOCOKAN
+        </button>
+
+        <button
+          id="resetButton"
+          class="reset-button"
+          type="button"
+        >
+          ↻ RESET / NAMA BARU
+        </button>
+
+      </section>
+
+      <!-- RESULT -->
+      <section
+        id="resultCard"
+        class="result-card hidden"
+        aria-live="polite"
+      >
+
+        <div id="resultNames" class="result-names">
+          -
+        </div>
+
+        <div id="percentage" class="percentage">
+          <span id="percentageNumber">0</span><span class="percent-sign">%</span>
+        </div>
+
+        <div id="processingText" class="processing-text">
+          SIAPKAN HATI...
+        </div>
+
+        <div class="heart-wrap">
+          <div class="heart-bar">
+            <div
+              id="heartFill"
+              class="heart-fill"
+            ></div>
+          </div>
+
+          <div class="heart-icon">
+            ❤️
+          </div>
+        </div>
+
+        <div id="category" class="category">
+          -
+        </div>
+
+        <div id="message" class="message">
+          Masukkan nama dan tekan tombol untuk mengetahui hasilnya.
+        </div>
+
+      </section>
+
+      <!-- FOOTER -->
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        TIKTOK LIVE • LOVE TEST
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ============================================================
+    // LOVE MATCH CALCULATOR
+    // Vanilla JavaScript
+    // ============================================================
+
+    const name1Input = document.getElementById('name1');
+    const name2Input = document.getElementById('name2');
+
+    const checkButton = document.getElementById('checkButton');
+    const resetButton = document.getElementById('resetButton');
+
+    const warning = document.getElementById('warning');
+
+    const resultCard = document.getElementById('resultCard');
+    const resultNames = document.getElementById('resultNames');
+    const percentageNumber = document.getElementById('percentageNumber');
+    const processingText = document.getElementById('processingText');
+
+    const heartFill = document.getElementById('heartFill');
+    const category = document.getElementById('category');
+    const message = document.getElementById('message');
+
+    let isCalculating = false;
+
+    // ------------------------------------------------------------
+    // Helper: random integer
+    // ------------------------------------------------------------
+
+    function randomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // ------------------------------------------------------------
+    // Helper: sleep
+    // ------------------------------------------------------------
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ------------------------------------------------------------
+    // Show warning
+    // ------------------------------------------------------------
+
+    function showWarning() {
+      warning.classList.remove('show');
+
+      // Force reflow agar animasi shake bisa dimainkan ulang
+      void warning.offsetWidth;
+
+      warning.classList.add('show');
+    }
+
+    // ------------------------------------------------------------
+    // Determine result category
+    // ------------------------------------------------------------
+
+    function getResultData(score) {
+
+      if (score <= 33) {
+        return {
+          className: 'low',
+          title: 'Cuma Teman 💔',
+          text: 'Kayaknya chemistry-nya masih sebatas teman. Jangan menyerah! 😭',
+          color: '#ff5d70'
+        };
+      }
+
+      if (score <= 70) {
+        return {
+          className: 'medium',
+          title: 'Ada Potensi! 💖',
+          text: 'Wah, ada chemistry! Tinggal lihat siapa yang berani mulai duluan. 👀',
+          color: '#ffd166'
+        };
+      }
+
+      return {
+        className: 'high',
+        title: 'Jodoh Sejati! 🔥💍',
+        text: 'WOW! Chemistry kalian luar biasa. Jangan sampai lepas! 💕🔥',
+        color: '#ff5bd8'
+      };
+    }
+
+    // ------------------------------------------------------------
+    // Confetti celebration
+    // ------------------------------------------------------------
+
+    function celebrate() {
+
+      if (typeof confetti !== 'function') {
+        return;
+      }
+
+      const duration = 3500;
+      const end = Date.now() + duration;
+
+      const colors = [
+        '#ff008c',
+        '#ff4fd8',
+        '#00ffff',
+        '#ffd700',
+        '#ffffff'
+      ];
+
+      (function frame() {
+
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 70,
+          origin: { x: 0 },
+          colors
+        });
+
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 70,
+          origin: { x: 1 },
+          colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+
+      })();
+
+      // Burst utama
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 100,
+          startVelocity: 35,
+          scalar: 1.1,
+          origin: {
+            x: 0.5,
+            y: 0.55
+          },
+          colors
+        });
+      }, 200);
+    }
+
+    // ------------------------------------------------------------
+    // Reset result visual
+    // ------------------------------------------------------------
+
+    function resetResult() {
+
+      resultCard.className = 'result-card hidden';
+
+      percentageNumber.textContent = '0';
+
+      processingText.textContent = 'SIAPKAN HATI...';
+
+      heartFill.style.width = '0%';
+
+      category.textContent = '-';
+
+      message.textContent =
+        'Masukkan nama dan tekan tombol untuk mengetahui hasilnya.';
+
+      resultNames.textContent = '-';
+    }
+
+    // ------------------------------------------------------------
+    // Main calculation
+    // ------------------------------------------------------------
+
+    async function calculateLove() {
+
+      if (isCalculating) {
+        return;
+      }
+
+      const name1 = name1Input.value.trim();
+      const name2 = name2Input.value.trim();
+
+      // Validation
+      if (!name1 || !name2) {
+        showWarning();
+
+        if (!name1) {
+          name1Input.focus();
+        } else {
+          name2Input.focus();
+        }
+
+        return;
+      }
+
+      warning.classList.remove('show');
+
+      isCalculating = true;
+
+      checkButton.disabled = true;
+      checkButton.textContent = '💓 MENGHITUNG...';
+
+      resultCard.className = 'result-card processing';
+
+      resultNames.textContent =
+        `${name1}  💕  ${name2}`;
+
+      percentageNumber.textContent = '0';
+
+      heartFill.style.width = '0%';
+
+      category.textContent = '';
+
+      message.textContent =
+        'Tunggu... takdir sedang dihitung. 👀';
+
+      processingText.textContent =
+        'MENGHUBUNGKAN CHEMISTRY...';
+
+      // ----------------------------------------------------------
+      // Suspense animation selama 2 detik
+      // ----------------------------------------------------------
+
+      const startTime = performance.now();
+      const duration = 2000;
+
+      function suspenseAnimation(currentTime) {
+
+        const elapsed = currentTime - startTime;
+
+        // Angka bergerak cepat
+        const fakeNumber = randomNumber(1, 100);
+
+        percentageNumber.textContent = fakeNumber;
+
+        // Bar juga ikut bergerak
+        heartFill.style.width = fakeNumber + '%';
+
+        if (elapsed < duration) {
+
+          if (elapsed > 600 && elapsed < 1200) {
+            processingText.textContent =
+              '💗 MEMBACA CHEMISTRY...';
+          } else if (elapsed >= 1200) {
+            processingText.textContent =
+              '🔥 MENENTUKAN TAKDIR...';
+          }
+
+          requestAnimationFrame(suspenseAnimation);
+
+        } else {
+
+          finishCalculation();
+        }
+      }
+
+      requestAnimationFrame(suspenseAnimation);
+    }
+
+    // ------------------------------------------------------------
+    // Finish calculation
+    // ------------------------------------------------------------
+
+    function finishCalculation() {
+
+      const finalScore = randomNumber(1, 100);
+      const result = getResultData(finalScore);
+
+      // Hentikan pulse processing
+      resultCard.className = `result-card ${result.className}`;
+
+      // Final number
+      percentageNumber.textContent = finalScore;
+
+      // Final progress bar
+      setTimeout(() => {
+        heartFill.style.width = finalScore + '%';
+      }, 50);
+
+      processingText.textContent =
+        'HASIL AKHIR ✨';
+
+      category.textContent =
+        result.title;
+
+      message.textContent =
+        result.text;
+
+      // Celebration untuk >70%
+      if (finalScore >= 71) {
+        celebrate();
+      }
+
+      // Enable button kembali
+      isCalculating = false;
+
+      checkButton.disabled = false;
+      checkButton.textContent = '💘 CEK LAGI';
+
+      // Sedikit efek scroll agar hasil terlihat di HP
+      setTimeout(() => {
+        resultCard.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 100);
+    }
+
+    // ------------------------------------------------------------
+    // Reset
+    // ------------------------------------------------------------
+
+    function resetApp() {
+
+      isCalculating = false;
+
+      name1Input.value = '';
+      name2Input.value = '';
+
+      warning.classList.remove('show');
+
+      checkButton.disabled = false;
+      checkButton.textContent = '💘 CEK KECOCOKAN';
+
+      resetResult();
+
+      name1Input.focus();
+    }
+
+    // ------------------------------------------------------------
+    // Events
+    // ------------------------------------------------------------
+
+    checkButton.addEventListener('click', calculateLove);
+
+    resetButton.addEventListener('click', resetApp);
+
+    // Enter pada input pertama / kedua
+    name1Input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        name2Input.focus();
+      }
+    });
+
+    name2Input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        calculateLove();
+      }
+    });
+
+    // Hapus warning ketika user mulai mengetik
+    name1Input.addEventListener('input', () => {
+      if (name1Input.value.trim()) {
+        warning.classList.remove('show');
+      }
+    });
+
+    name2Input.addEventListener('input', () => {
+      if (name2Input.value.trim()) {
+        warning.classList.remove('show');
+      }
+    });
+
+  </script>
+
+</body>
+</html>
+```
